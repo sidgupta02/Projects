@@ -1,0 +1,74 @@
+import cv2
+import dlib
+import numpy as np
+
+# Load the face detector model from dlib
+detector = dlib.get_frontal_face_detector()
+
+# Load the face landmark predictor from dlib
+predictor = dlib.shape_predictor("shape_predictor_68_face_landmarks.dat")
+
+# Start the video capture
+cap = cv2.VideoCapture(0)
+
+#nya bna rha hu me
+while True:
+    # Capture a single frame from the video
+    ret, img = cap.read()
+
+    # Convert the BGR image to grayscale
+    gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+
+    # Use the Dlib detector to detect faces in the grayscale image
+    faces = detector(gray)
+    
+    # Loop over the detected faces
+    for face in faces:
+        
+        # Use the Dlib landmark predictor to predict 68 facial landmarks
+        landmarks = predictor(gray, face)
+        
+        # Get the facial landmarks as a numpy array
+        points = np.zeros((68, 2), dtype=np.int)
+        
+        for i in range(68):
+            points[i] = (landmarks.part(i).x, landmarks.part(i).y)
+            
+         # Draw the 68 facial landmarks on the image
+        for i in range(68):
+            x = landmarks.part(i).x
+            y = landmarks.part(i).y
+            cv2.circle(img, (x, y), 2, (0, 255, 0), -1)
+        
+        # Get the convex hull of the 68 facial landmarks
+        hull = cv2.convexHull(points)
+  
+        # Get the facial landmarks for the face
+        shape = predictor(gray, face)
+        shape = np.array([[p.x, p.y] for p in shape.parts()])
+
+        # Create a face mesh using the facial landmarks
+        mesh = []
+        for i in range(17, 68):
+            mesh.append([shape[i-17], shape[i-16], shape[i]])
+
+        # Draw the face mesh on the image
+        for triangle in mesh:
+            cv2.line(img, tuple(triangle[0]), tuple(triangle[1]), (255, 0, 0), 1)
+            cv2.line(img, tuple(triangle[1]), tuple(triangle[2]), (255, 0, 0), 1)
+            cv2.line(img, tuple(triangle[2]), tuple(triangle[0]), (255, 0, 0), 1)
+            
+            
+    # Display the resulting image
+    cv2.imshow("Face Mesh", img)
+
+    # Break the loop if the 'q' key is pressed
+    if cv2.waitKey(0) & 0xFF == ord('q'):
+        break
+
+# Release the video capture
+cap.release()
+
+#end
+# Close all windows
+cv2.destroyAllWindows()
