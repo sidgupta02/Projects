@@ -7,7 +7,7 @@ void system();
 
 char board[]={'0','1','2','3','4','5','6','7','8','9'};
 
-void main(){
+int main(){
     int player=1,input,status=-1;
     printBoard();
    
@@ -29,20 +29,20 @@ void main(){
 
     if(result==1){
         printf("Player %d is the Winner",player);
-        return;
+        return 0;
     }else if(result==0){
         printf("draw");
-        return;
+        return 0;
     }
 
     player++;
     }
     
-    
+    return 0;
 }
 
 void printBoard(){
-    system("cls");
+    
     printf("\n\n");
     printf("=== TIC TAC TOE ===\n\n");
     printf("     |     |     \n");
